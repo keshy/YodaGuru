@@ -316,6 +316,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.get('/api/festivals/upcoming', isAuthenticated, async (req, res) => {
     try {
+      if (!req.session.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
       const preferences = await storage.getUserPreferences(req.session.userId);
       
       if (!preferences) {
@@ -393,6 +397,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Contribution routes
   app.get('/api/contributions', isAuthenticated, async (req, res) => {
     try {
+      if (!req.session.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
       const contributions = await storage.getContributionsByUser(req.session.userId);
       
       res.status(200).json(contributions);
@@ -404,6 +412,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.post('/api/contributions', isAuthenticated, async (req, res) => {
     try {
+      if (!req.session.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
       const { title, description, content, religion, festival } = req.body;
       
       const newContribution = await storage.createContribution({
@@ -427,6 +439,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ElevenLabs voice synthesis route
   app.post('/api/synthesize', isAuthenticated, async (req, res) => {
     try {
+      if (!req.session.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
       const { text, voice_id } = req.body;
       
       // This is where we would call the ElevenLabs API
