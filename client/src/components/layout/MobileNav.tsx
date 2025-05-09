@@ -132,13 +132,15 @@ function MobileBottomNav({ onMoreClick }: MobileBottomNavProps) {
   return (
     <nav className="md:hidden bg-white shadow-lg py-2 px-4 fixed bottom-0 w-full flex justify-between items-center z-10">
       {mainNavItems.map((item) => (
-        <Link key={item.path} href={item.path}>
-          <a className={`flex flex-col items-center ${
+        <Link 
+          key={item.path} 
+          href={item.path}
+          className={`flex flex-col items-center ${
             location === item.path ? "text-primary" : "text-neutral-darker"
-          }`}>
-            <span className="material-icons">{item.icon}</span>
-            <span className="text-xs mt-1">{item.label.split(' ')[0]}</span>
-          </a>
+          }`}
+        >
+          <span className="material-icons">{item.icon}</span>
+          <span className="text-xs mt-1">{item.label.split(' ')[0]}</span>
         </Link>
       ))}
       

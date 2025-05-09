@@ -196,6 +196,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { firstName, lastName } = req.body;
       
+      if (!req.session.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
       const updatedUser = await storage.updateUser(req.session.userId, {
         firstName,
         lastName
@@ -222,6 +226,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Preferences routes
   app.get('/api/preferences', isAuthenticated, async (req, res) => {
     try {
+      if (!req.session.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
       const preferences = await storage.getUserPreferences(req.session.userId);
       
       if (!preferences) {
@@ -237,6 +245,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.put('/api/preferences', isAuthenticated, async (req, res) => {
     try {
+      if (!req.session.userId) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
       const prefSchema = insertPreferencesSchema.pick({
         primaryReligion: true,
         secondaryInterests: true,
