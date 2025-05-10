@@ -21,14 +21,14 @@ export default function Calendar() {
   
   const { allFestivals, isLoadingAll } = useFestivals();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [selectedReligion, setSelectedReligion] = useState<string>("");
+  const [selectedReligion, setSelectedReligion] = useState<string>("all");
   const [selectedFestival, setSelectedFestival] = useState<Festival | null>(null);
   
   // Format festival dates for calendar highlighting
   const festivalDates = allFestivals
     ? allFestivals
         .filter((festival: Festival) => 
-          selectedReligion === "" || 
+          selectedReligion === "all" || selectedReligion === "" || 
           festival.religion.toLowerCase() === selectedReligion.toLowerCase()
         )
         .map((festival: Festival) => new Date(festival.date))
@@ -46,7 +46,7 @@ export default function Calendar() {
       
       return (
         festivalDateStr === selectedDateStr &&
-        (selectedReligion === "" || 
+        (selectedReligion === "all" || selectedReligion === "" || 
          festival.religion.toLowerCase() === selectedReligion.toLowerCase())
       );
     });
@@ -101,7 +101,7 @@ export default function Calendar() {
                     <SelectValue placeholder="All Religions" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Religions</SelectItem>
+                    <SelectItem value="all">All Religions</SelectItem>
                     {RELIGIONS.map((religion) => (
                       <SelectItem key={religion.value} value={religion.value}>
                         {religion.label}
