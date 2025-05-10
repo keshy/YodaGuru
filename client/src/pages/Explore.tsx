@@ -22,7 +22,7 @@ export default function Explore() {
   const festivalId = festivalParam ? parseInt(festivalParam) : undefined;
   
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedReligion, setSelectedReligion] = useState<string>("");
+  const [selectedReligion, setSelectedReligion] = useState<string>("all");
   const [selectedType, setSelectedType] = useState<string>("all");
   
   const { allFestivals, isLoadingAll } = useFestivals();
@@ -51,7 +51,7 @@ export default function Explore() {
         (query === "" || 
          festival.name.toLowerCase().includes(query) || 
          festival.description.toLowerCase().includes(query)) &&
-        (selectedReligion === "" || festival.religion.toLowerCase() === selectedReligion.toLowerCase())
+        (selectedReligion === "all" || festival.religion.toLowerCase() === selectedReligion.toLowerCase())
       );
     }
     
@@ -103,7 +103,7 @@ export default function Explore() {
                 <SelectValue placeholder="All Religions" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Religions</SelectItem>
+                <SelectItem value="all">All Religions</SelectItem>
                 {RELIGIONS.map((religion) => (
                   <SelectItem key={religion.value} value={religion.value}>
                     {religion.label}

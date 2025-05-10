@@ -50,7 +50,7 @@ export default function CalendarUploader() {
       title: "",
       description: "",
       content: "",
-      religion: "",
+      religion: "hinduism",
       festival: "",
       year: currentYear.toString()
     }
@@ -236,7 +236,7 @@ export default function CalendarUploader() {
               <label htmlFor="religion" className="block font-medium mb-2">Religion</label>
               <Select
                 onValueChange={(value) => setValue("religion", value)}
-                defaultValue={watchedReligion}
+                value={watchedReligion}
               >
                 <SelectTrigger className={errors.religion ? "border-destructive" : ""}>
                   <SelectValue placeholder="Select Religion" />
@@ -258,7 +258,7 @@ export default function CalendarUploader() {
               <label htmlFor="year" className="block font-medium mb-2">Calendar Year</label>
               <Select
                 onValueChange={(value) => setValue("year", value)}
-                defaultValue={currentYear.toString()}
+                value={watch("year")}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select Year" />
@@ -275,7 +275,7 @@ export default function CalendarUploader() {
             
             <div>
               <label htmlFor="format" className="block font-medium mb-2">Calendar Format</label>
-              <Select defaultValue="standard">
+              <Select value="standard">
                 <SelectTrigger>
                   <SelectValue placeholder="Standard Format" />
                 </SelectTrigger>
