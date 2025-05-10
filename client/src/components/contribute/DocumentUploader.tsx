@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/select";
 import { RELIGIONS } from "@/lib/constants";
 import { useToast } from "@/hooks/use-toast";
-import { insertContributionSchema } from "@shared/schema";
+import { insertContributionSchema, type Festival } from "@shared/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -59,8 +59,8 @@ export default function DocumentUploader() {
   
   const watchedReligion = watch("religion");
   
-  const filteredFestivals = watchedReligion 
-    ? festivals?.filter((festival: any) => 
+  const filteredFestivals = watchedReligion && festivals && Array.isArray(festivals)
+    ? festivals.filter((festival: Festival) => 
         festival.religion.toLowerCase() === watchedReligion.toLowerCase()
       )
     : [];
@@ -263,16 +263,16 @@ export default function DocumentUploader() {
             <div>
               <label htmlFor="festival" className="block font-medium mb-2">Associated Festival/Occasion</label>
               <Select
-                onValueChange={(value) => setValue("festival", value)}
-                defaultValue=""
+                onValueChange={(value) => setValue("festival", value === "none" ? "" : value)}
+                defaultValue="none"
                 disabled={!watchedReligion || filteredFestivals?.length === 0}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select or Type Festival Name" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Select Festival</SelectItem>
-                  {filteredFestivals?.map((festival: any) => (
+                  <SelectItem value="none">Select Festival</SelectItem>
+                  {filteredFestivals?.map((festival: Festival) => (
                     <SelectItem key={festival.id} value={festival.name}>
                       {festival.name}
                     </SelectItem>
