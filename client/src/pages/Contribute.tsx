@@ -1,5 +1,6 @@
 import { useState } from "react";
 import DocumentUploader from "@/components/contribute/DocumentUploader";
+import CalendarUploader from "@/components/contribute/CalendarUploader";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,15 +11,29 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Contribute() {
   const [activeTab, setActiveTab] = useState<"upload" | "contributions">("upload");
+  const [contributionType, setContributionType] = useState<"all" | "rituals" | "calendars">("all");
   const { toast } = useToast();
   
-  const { data: contributions, isLoading } = useQuery({
+  const { data: contributions = [], isLoading } = useQuery<Contribution[]>({
     queryKey: ['/api/contributions'],
     enabled: true
+  });
+  
+  const filteredContributions = contributions.filter((contribution) => {
+    if (contributionType === "all") return true;
+    if (contributionType === "calendars") return contribution.title.includes("Calendar");
+    if (contributionType === "rituals") return !contribution.title.includes("Calendar");
+    return true;
   });
   
   const getStatusColor = (status: string) => {
@@ -88,7 +103,20 @@ export default function Contribute() {
         
         <div className="p-6">
           {activeTab === "upload" ? (
-            <DocumentUploader />
+            <Tabs defaultValue="rituals" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="rituals" className="text-base">Ritual Documents</TabsTrigger>
+                <TabsTrigger value="calendar" className="text-base">Festival Calendar</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="rituals">
+                <DocumentUploader />
+              </TabsContent>
+              
+              <TabsContent value="calendar">
+                <CalendarUploader />
+              </TabsContent>
+            </Tabs>
           ) : (
             <div>
               <h3 className="font-heading text-xl font-semibold mb-4">Your Contributions</h3>
@@ -111,47 +139,87 @@ export default function Contribute() {
                   </CardContent>
                 </Card>
               ) : (
-                <div className="space-y-4">
-                  {contributions.map((contribution: Contribution) => (
-                    <div key={contribution.id} className="border border-neutral-DEFAULT rounded-lg p-4 flex justify-between items-center">
-                      <div>
-                        <h4 className="font-medium">{contribution.title}</h4>
-                        <p className="text-sm text-neutral-darker">
-                          Uploaded on {new Date(contribution.createdAt).toLocaleDateString('en-US', { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric' 
-                          })} • {contribution.religion} {contribution.festival ? `• ${contribution.festival}` : ''}
-                        </p>
-                      </div>
-                      <div className="flex items-center">
-                        <span className={`px-3 py-1 rounded-full text-sm font-medium mr-4 ${getStatusColor(contribution.status)}`}>
-                          {getStatusText(contribution.status)}
-                        </span>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <span className="material-icons">more_vert</span>
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleShareContribution(contribution)}>
-                              <span className="material-icons mr-2 text-sm">share</span>
-                              Share
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <span className="material-icons mr-2 text-sm">edit</span>
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive">
-                              <span className="material-icons mr-2 text-sm">delete</span>
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="font-medium text-neutral-darker">Filter by Type</h4>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant={contributionType === "rituals" ? "default" : "outline"}
+                        size="sm" 
+                        className="text-xs flex items-center gap-1"
+                        onClick={() => setContributionType("rituals")}
+                      >
+                        <span className="material-icons text-xs">description</span>
+                        Rituals
+                      </Button>
+                      <Button 
+                        variant={contributionType === "calendars" ? "default" : "outline"}
+                        size="sm" 
+                        className="text-xs flex items-center gap-1"
+                        onClick={() => setContributionType("calendars")}
+                      >
+                        <span className="material-icons text-xs">calendar_month</span>
+                        Calendars
+                      </Button>
+                      <Button 
+                        variant={contributionType === "all" ? "default" : "outline"}
+                        size="sm" 
+                        className="text-xs flex items-center gap-1"
+                        onClick={() => setContributionType("all")}
+                      >
+                        <span className="material-icons text-xs">check_circle</span>
+                        All
+                      </Button>
                     </div>
-                  ))}
+                  </div>
+                  
+                  <div className="space-y-4">
+                    {filteredContributions.map((contribution: Contribution) => (
+                      <div key={contribution.id} className="border border-neutral-DEFAULT rounded-lg p-4 flex justify-between items-center">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="material-icons text-primary-darker">
+                              {contribution.title.includes("Calendar") ? "calendar_month" : "description"}
+                            </span>
+                            <h4 className="font-medium">{contribution.title}</h4>
+                          </div>
+                          <p className="text-sm text-neutral-darker">
+                            Uploaded on {new Date(contribution.createdAt).toLocaleDateString('en-US', { 
+                              year: 'numeric', 
+                              month: 'long', 
+                              day: 'numeric' 
+                            })} • {contribution.religion} {contribution.festival ? `• ${contribution.festival}` : ''}
+                          </p>
+                        </div>
+                        <div className="flex items-center">
+                          <span className={`px-3 py-1 rounded-full text-sm font-medium mr-4 ${getStatusColor(contribution.status)}`}>
+                            {getStatusText(contribution.status)}
+                          </span>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <span className="material-icons">more_vert</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleShareContribution(contribution)}>
+                                <span className="material-icons mr-2 text-sm">share</span>
+                                Share
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>
+                                <span className="material-icons mr-2 text-sm">edit</span>
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className="text-destructive">
+                                <span className="material-icons mr-2 text-sm">delete</span>
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
