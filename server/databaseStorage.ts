@@ -19,7 +19,7 @@ import {
   type InsertContribution
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, gte, desc, sql } from "drizzle-orm";
+import { eq, and, gte, desc, sql, inArray } from "drizzle-orm";
 import { IStorage } from "./storage";
 
 export class DatabaseStorage implements IStorage {
@@ -179,17 +179,20 @@ export class DatabaseStorage implements IStorage {
       return [];
     }
     
-    // Then get rituals for those festivals
-    return db
-      .select()
-      .from(rituals)
-      .where(
-        inArray(
-          rituals.festivalId, 
-          festivalIds
-        )
-      )
-      .orderBy(desc(rituals.createdAt));
+    // For each festival, get the rituals
+    const results: Ritual[] = [];
+    
+    for (const festivalId of festivalIds) {
+      const festivalRituals = await db
+        .select()
+        .from(rituals)
+        .where(eq(rituals.festivalId, festivalId))
+        .orderBy(desc(rituals.createdAt));
+      
+      results.push(...festivalRituals);
+    }
+    
+    return results;
   }
 
   async createRitual(ritual: InsertRitual): Promise<Ritual> {
