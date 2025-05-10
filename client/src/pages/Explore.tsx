@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useFestivals } from "@/hooks/useFestivals";
 import { useRituals } from "@/hooks/useRituals";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RELIGIONS } from "@/lib/constants";
 import { Festival, Ritual, Bhajan } from "@shared/schema";
 import { useQuery } from "@tanstack/react-query";
 
@@ -22,11 +22,11 @@ export default function Explore() {
   const festivalId = festivalParam ? parseInt(festivalParam) : undefined;
   
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedReligion, setSelectedReligion] = useState<string>("all");
   const [selectedType, setSelectedType] = useState<string>("all");
   
   const { allFestivals, isLoadingAll } = useFestivals();
   const { playRitualText, isPlaying, stopPlayback } = useRituals();
+  const { primaryReligion, isLoading: isLoadingPreferences } = useUserPreferences();
   
   // Get bhajans
   const { data: bhajans, isLoading: isLoadingBhajans } = useQuery({
@@ -41,7 +41,7 @@ export default function Explore() {
     };
   }, [stopPlayback]);
   
-  // Filter content based on search, religion, and type
+  // Filter content based on search and type, using user's primaryReligion
   const filteredContent = () => {
     const query = searchQuery.toLowerCase();
     let festivalList: Festival[] = [];
@@ -51,7 +51,7 @@ export default function Explore() {
         (query === "" || 
          festival.name.toLowerCase().includes(query) || 
          festival.description.toLowerCase().includes(query)) &&
-        (selectedReligion === "all" || festival.religion.toLowerCase() === selectedReligion.toLowerCase())
+        (festival.religion.toLowerCase() === primaryReligion.toLowerCase())
       );
     }
     
@@ -98,22 +98,6 @@ export default function Explore() {
           </div>
           
           <div className="w-full md:w-48">
-            <Select value={selectedReligion} onValueChange={setSelectedReligion}>
-              <SelectTrigger>
-                <SelectValue placeholder="All Religions" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Religions</SelectItem>
-                {RELIGIONS.map((religion) => (
-                  <SelectItem key={religion.value} value={religion.value}>
-                    {religion.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="w-full md:w-48">
             <Select value={selectedType} onValueChange={setSelectedType}>
               <SelectTrigger>
                 <SelectValue placeholder="All Content" />
@@ -126,6 +110,15 @@ export default function Explore() {
             </Select>
           </div>
         </div>
+        
+        {primaryReligion && (
+          <div className="bg-primary-lighter/20 border border-primary-lighter rounded-md p-3 flex items-center">
+            <span className="material-icons text-primary-dark mr-2">info</span>
+            <p className="text-sm text-primary-dark">
+              Showing content for your preferred religion: <span className="font-medium capitalize">{primaryReligion}</span>
+            </p>
+          </div>
+        )}
       </div>
       
       {/* Results Section */}
