@@ -45,19 +45,28 @@ export default function Explore() {
   const filteredContent = () => {
     const query = searchQuery.toLowerCase();
     let festivalList: Festival[] = [];
+    let bhajanList: Bhajan[] = [];
     
     if (allFestivals) {
       festivalList = allFestivals.filter((festival: Festival) => 
         (query === "" || 
          festival.name.toLowerCase().includes(query) || 
          festival.description.toLowerCase().includes(query)) &&
-        (festival.religion.toLowerCase() === primaryReligion.toLowerCase())
+        (festival.religion.toLowerCase() === primaryReligion?.toLowerCase())
+      );
+    }
+    
+    if (bhajans && Array.isArray(bhajans)) {
+      bhajanList = bhajans.filter((bhajan: Bhajan) =>
+        (query === "" || 
+         bhajan.title.toLowerCase().includes(query)) &&
+        (bhajan.religion.toLowerCase() === primaryReligion?.toLowerCase())
       );
     }
     
     return {
       festivals: selectedType === "bhajans" ? [] : festivalList,
-      bhajans: bhajans || []
+      bhajans: bhajanList
     };
   };
   

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useFestivals } from "@/hooks/useFestivals";
+import { useUserPreferences } from "@/hooks/useUserPreferences";
 import { useLocation } from "wouter";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,9 +21,17 @@ export default function Calendar() {
   const festivalParam = new URLSearchParams(location.split("?")[1]).get("festivalId");
   
   const { allFestivals, isLoadingAll } = useFestivals();
+  const { primaryReligion, isLoading: isLoadingPreferences } = useUserPreferences();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [selectedReligion, setSelectedReligion] = useState<string>("all");
   const [selectedFestival, setSelectedFestival] = useState<Festival | null>(null);
+  
+  // Set religion filter based on user preferences when loaded
+  useEffect(() => {
+    if (primaryReligion && !festivalParam) {
+      setSelectedReligion(primaryReligion.toLowerCase());
+    }
+  }, [primaryReligion, festivalParam]);
   
   // Format festival dates for calendar highlighting
   const festivalDates = allFestivals
@@ -94,6 +103,15 @@ export default function Calendar() {
         <div className="lg:col-span-1">
           <Card>
             <CardContent className="p-6">
+              {primaryReligion && selectedReligion !== "all" && (
+                <div className="bg-primary-lighter/20 border border-primary-lighter rounded-md p-3 mb-4 flex items-center">
+                  <span className="material-icons text-primary-dark mr-2">info</span>
+                  <p className="text-sm text-primary-dark">
+                    Showing festivals for your preferred religion: <span className="font-medium capitalize">{primaryReligion}</span>
+                  </p>
+                </div>
+              )}
+              
               <div className="mb-4">
                 <label className="block font-medium mb-2">Filter by Religion</label>
                 <Select value={selectedReligion} onValueChange={setSelectedReligion}>
