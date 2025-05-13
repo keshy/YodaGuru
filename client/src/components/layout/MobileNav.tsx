@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { NAV_ITEMS } from "@/lib/constants";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 
 interface MobileHeaderProps {
   onMenuClick: () => void;
@@ -10,13 +11,14 @@ interface MobileHeaderProps {
 
 function MobileHeader({ onMenuClick }: MobileHeaderProps) {
   return (
-    <header className="md:hidden bg-white shadow-md sticky top-0 z-10">
+    <header className="md:hidden bg-white dark:bg-gray-800 shadow-md sticky top-0 z-10">
       <div className="flex justify-between items-center px-4 py-3">
         <div className="flex items-center">
           <span className="material-icons text-primary">auto_awesome</span>
           <h1 className="font-heading font-semibold text-lg ml-2">Spiritual Connect</h1>
         </div>
         <div className="flex items-center">
+          <ThemeToggle />
           <button className="p-2" onClick={onMenuClick}>
             <span className="material-icons">menu</span>
           </button>
@@ -56,13 +58,13 @@ function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden">
-      <div ref={menuRef} className="bg-white w-64 h-full overflow-y-auto p-4 transform transition-transform">
+      <div ref={menuRef} className="bg-white dark:bg-gray-800 w-64 h-full overflow-y-auto p-4 transform transition-transform">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center">
             <span className="material-icons text-primary">auto_awesome</span>
             <h1 className="font-heading font-semibold text-lg ml-2">Spiritual Connect</h1>
           </div>
-          <button onClick={onClose}>
+          <button onClick={onClose} className="text-neutral-darker dark:text-neutral-light">
             <span className="material-icons">close</span>
           </button>
         </div>
@@ -77,7 +79,7 @@ function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             />
             <div className="ml-3">
               <p className="font-heading font-medium text-sm">{user.firstName} {user.lastName}</p>
-              <p className="text-neutral-darker text-xs">{user.email}</p>
+              <p className="text-neutral-darker dark:text-neutral-light text-xs">{user.email}</p>
             </div>
           </div>
         )}
@@ -89,8 +91,8 @@ function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                 <Link href={item.path}
                   className={`flex items-center px-4 py-3 rounded-lg ${
                     location === item.path
-                      ? "bg-primary-light/10 text-primary-dark font-medium"
-                      : "text-neutral-darker hover:bg-neutral-light transition-colors"
+                      ? "bg-primary-light/10 dark:bg-primary-dark/30 text-primary-dark dark:text-primary-light font-medium"
+                      : "text-neutral-darker dark:text-neutral-light hover:bg-neutral-light dark:hover:bg-gray-700 transition-colors"
                   }`}
                   onClick={onClose}
                 >
@@ -102,10 +104,14 @@ function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
           </ul>
         </nav>
 
-        <div className="pt-6 border-t border-neutral-DEFAULT mt-6">
+        <div className="pt-6 border-t border-neutral-DEFAULT dark:border-gray-700 mt-6">
+          <div className="flex items-center justify-between px-4 py-3 mb-2">
+            <span className="text-neutral-darker dark:text-neutral-light text-sm">Theme</span>
+            <ThemeToggle />
+          </div>
           <Button
             variant="ghost"
-            className="w-full justify-start px-4 py-3 rounded-lg text-neutral-darker hover:bg-neutral-light transition-colors"
+            className="w-full justify-start px-4 py-3 rounded-lg text-neutral-darker dark:text-neutral-light hover:bg-neutral-light dark:hover:bg-gray-700 transition-colors"
             onClick={() => {
               logout();
               onClose();
@@ -130,13 +136,15 @@ function MobileBottomNav({ onMoreClick }: MobileBottomNavProps) {
   const mainNavItems = NAV_ITEMS.slice(0, 4); // Home, Priest, Explore, Calendar
   
   return (
-    <nav className="md:hidden bg-white shadow-lg py-2 px-4 fixed bottom-0 w-full flex justify-between items-center z-10">
+    <nav className="md:hidden bg-white dark:bg-gray-800 shadow-lg py-2 px-4 fixed bottom-0 w-full flex justify-between items-center z-10">
       {mainNavItems.map((item) => (
         <Link 
           key={item.path} 
           href={item.path}
           className={`flex flex-col items-center ${
-            location === item.path ? "text-primary" : "text-neutral-darker"
+            location === item.path 
+              ? "text-primary" 
+              : "text-neutral-darker dark:text-neutral-light"
           }`}
         >
           <span className="material-icons">{item.icon}</span>
@@ -145,7 +153,7 @@ function MobileBottomNav({ onMoreClick }: MobileBottomNavProps) {
       ))}
       
       <button 
-        className="flex flex-col items-center text-neutral-darker"
+        className="flex flex-col items-center text-neutral-darker dark:text-neutral-light"
         onClick={onMoreClick}
       >
         <span className="material-icons">menu</span>

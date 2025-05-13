@@ -443,18 +443,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Not authenticated" });
       }
       
-      const { text, voice_id } = req.body;
+      const { text, voiceId } = req.body;
       
-      // This is where we would call the ElevenLabs API
-      // For now, we'll return a placeholder response
+      if (!text || typeof text !== 'string') {
+        return res.status(400).json({ message: "Text is required" });
+      }
+      
+      if (!process.env.ELEVENLABS_API_KEY) {
+        return res.status(500).json({ 
+          message: "ElevenLabs API key is not configured",
+          success: false 
+        });
+      }
+      
+      // Call the ElevenLabs API
+      const voice_id = voiceId || "21m00Tcm4TlvDq8ikWAM"; // Rachel voice is default
+      const url = `https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`;
+      
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Accept': 'audio/mpeg',
+          'Content-Type': 'application/json',
+          'xi-api-key': process.env.ELEVENLABS_API_KEY
+        },
+        body: JSON.stringify({
+          text,
+          model_id: "eleven_monolingual_v1",
+          voice_settings: {
+            stability: 0.75,
+            similarity_boost: 0.75
+          }
+        })
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('ElevenLabs API error:', errorText);
+        return res.status(response.status).json({ 
+          message: "Error from ElevenLabs API", 
+          success: false,
+          details: errorText
+        });
+      }
+      
+      // Get the audio data from the response
+      const audioBuffer = await response.arrayBuffer();
+      const base64Audio = Buffer.from(audioBuffer).toString('base64');
+      const audioUrl = `data:audio/mpeg;base64,${base64Audio}`;
+      
       res.status(200).json({ 
-        message: "Voice synthesis request received",
-        status: "success",
-        audio_url: null
+        message: "Voice synthesis successful",
+        success: true,
+        audioUrl
       });
     } catch (error) {
       console.error('Voice synthesis error:', error);
-      res.status(500).json({ message: "Failed to synthesize voice" });
+      res.status(500).json({ 
+        message: "Failed to synthesize voice", 
+        success: false,
+        error: error.message
+      });
     }
   });
 
