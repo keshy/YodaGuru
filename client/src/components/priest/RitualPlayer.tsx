@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Ritual } from "@shared/schema";
-import { VOICES, synthesizeSpeech } from "@/lib/elevenlabs";
+import { VOICES, SPIRITUAL_VOICES, synthesizeSpeech } from "@/lib/elevenlabs";
+import { useTheme } from "@/components/theme/ThemeProvider";
 import { 
   Select,
   SelectContent,
@@ -20,9 +21,13 @@ export default function RitualPlayer({ ritual, onBack }: RitualPlayerProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(80);
-  const [selectedVoice, setSelectedVoice] = useState(VOICES[0].id);
+  const [selectedVoice, setSelectedVoice] = useState(SPIRITUAL_VOICES[0].id);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { theme } = useTheme();
+  
+  // Use appropriate voice list based on theme
+  const voiceList = theme === 'spiritual' ? SPIRITUAL_VOICES : VOICES;
   
   const steps = ritual?.steps ? JSON.parse(ritual.steps as string) : [];
   
@@ -152,7 +157,7 @@ export default function RitualPlayer({ ritual, onBack }: RitualPlayerProps) {
                       <SelectValue placeholder="Select voice" />
                     </SelectTrigger>
                     <SelectContent>
-                      {VOICES.map(voice => (
+                      {voiceList.map(voice => (
                         <SelectItem key={voice.id} value={voice.id}>
                           {voice.name}
                         </SelectItem>

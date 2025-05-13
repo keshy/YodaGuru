@@ -502,7 +502,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ 
         message: "Failed to synthesize voice", 
         success: false,
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       });
     }
   });
