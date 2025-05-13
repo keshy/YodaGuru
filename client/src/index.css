@@ -126,4 +126,44 @@
   .toggle-switch input:checked ~ .block {
     @apply bg-primary-light;
   }
+  
+  /* Spiritual theme enhancements */
+  .spiritual {
+    /* Add custom spiritual theme variables */
+    --primary: 280 68% 60%;
+    --primary-foreground: 0 0% 98%;
+    
+    --secondary: 36 100% 55%;
+    --secondary-foreground: 0 0% 98%;
+    
+    --accent: 45 100% 60%;
+    --accent-foreground: 0 0% 98%;
+    
+    --background: 240 15% 6%;
+    --foreground: 0 0% 94%;
+    
+    /* Add starry background effect */
+    background-image: 
+      radial-gradient(circle at 25% 25%, rgba(120, 100, 200, 0.05) 0%, transparent 10%),
+      radial-gradient(circle at 75% 75%, rgba(120, 100, 200, 0.05) 0%, transparent 10%),
+      radial-gradient(circle at 50% 50%, rgba(120, 100, 200, 0.05) 0%, transparent 10%);
+  }
+  
+  .spiritual h1, 
+  .spiritual h2, 
+  .spiritual h3, 
+  .spiritual h4, 
+  .spiritual h5, 
+  .spiritual h6 {
+    background: linear-gradient(90deg, var(--accent) 0%, var(--primary) 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+  }
+  
+  /* Add subtle glow effect to buttons in spiritual mode */
+  .spiritual .bg-primary {
+    box-shadow: 0 0 15px rgba(126, 87, 194, 0.4);
+  }
 }
